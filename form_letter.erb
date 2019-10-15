@@ -18,7 +18,11 @@
         <% legislators.each do |legislator| %>
         <tr>
           <td><%= "#{legislator.name}" %></td>
+          <% begin %>
           <td><%= "#{legislator.phones.join}" %></td>
+          <% rescue %>
+          <td><%= "Please visit www.commoncause.org/take-action/find-elected-officials to find your representative\'s contact info." %>
+          <% end %>
         </tr>
       <% end %>
     <% else %>

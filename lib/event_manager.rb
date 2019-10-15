@@ -9,7 +9,7 @@ end
 def clean_phone_num(phone_num)
   stripped_num = phone_num.to_s.scan(/\d/).join
     .match(/^1?(\d{10})$/)
-  stripped_num ? stripped_num[1] : "Please send us your phone number for mobile updates."
+  stripped_num ? stripped_num[1] : "Invalid number. Request number from registrant."
 end
 
 def legislators_by_zipcode(zipcode)
@@ -18,9 +18,9 @@ def legislators_by_zipcode(zipcode)
   
   begin
     civic_info.representative_info_by_address(
-                                    address: zipcode,
-                                    levels: "country",
-                                    roles: ["legislatorUpperBody", "legislatorLowerBody"]    
+      address: zipcode,
+      levels: "country",
+      roles: ["legislatorUpperBody", "legislatorLowerBody"]    
     ).officials
   rescue
     "You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials"
@@ -37,7 +37,8 @@ def save_thank_you_letters(id, form_letter)
   end
 end
 
-puts "EventManager Initialized!"
+puts "Event manager initialized. Populating form letters in ./output/"
+puts "Phone list for mobile engagement:"
 
 contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
 
@@ -45,6 +46,7 @@ template_letter = File.read "form_letter.erb"
 erb_template = ERB.new template_letter
 
 contents.each do |row|
+  #Parse relevant CSV info
   id = row[0]
   
   name = row[:first_name]
@@ -55,9 +57,10 @@ contents.each do |row|
 
   phone_num = clean_phone_num(row[:homephone])
 
-  # puts "#{name} #{phone_num}"
+  puts "Name: #{name}, Phone: #{phone_num}"
 
-#   form_letter = erb_template.result(binding)
+  #Create form letter for each registrant with their US representatives and contact info.
+  form_letter = erb_template.result(binding)
 
-#   save_thank_you_letters(id, form_letter)
+  save_thank_you_letters(id, form_letter)
 end
